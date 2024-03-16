@@ -1,5 +1,8 @@
 package com.example.practicasqlite233410.presentation
 
+import android.content.Context
+import android.content.DialogInterface
+import androidx.appcompat.app.AlertDialog
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Sort
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -31,12 +35,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.practicasqlite233410.R
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotesScreen(
+    context: Context,
     state: NoteState,
     navController: NavController,
     onEvent: (NotesEvent) -> Unit
@@ -70,7 +77,7 @@ fun NotesScreen(
                 }
             }
         },
-
+        //Boton de agregar notas
         floatingActionButton = {
             FloatingActionButton(onClick = {
                 state.title.value = ""
@@ -92,6 +99,8 @@ fun NotesScreen(
 
             items(state.notes.size) { index ->
                 NoteItem(
+                    context = context,
+                    navController = navController,
                     state = state,
                     index = index,
                     onEvent = onEvent
@@ -106,6 +115,8 @@ fun NotesScreen(
 
 @Composable
 fun NoteItem(
+    context: Context,
+    navController: NavController,
     state: NoteState,
     index: Int,
     onEvent: (NotesEvent) -> Unit
@@ -137,7 +148,27 @@ fun NoteItem(
             )
 
         }
+        //Botón de editar notas
+        IconButton(onClick = {
+                state.id.value = state.notes[index].id
+                state.title.value = state.notes[index].title
+                state.description.value = state.notes[index].description
+                navController.navigate("EditNoteScreen"){
+                    // Utiliza el contexto de la actividad para la navegación
+                    launchSingleTop = true
+                }
+            }
+        ) {
 
+            Icon(
+                imageVector = Icons.Rounded.Edit,
+                contentDescription = "Edit Note",
+                modifier = Modifier.size(35.dp),
+                tint = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+
+        }
+        //Botón eliminar nota
         IconButton(
             onClick = {
                 onEvent(NotesEvent.DeleteNote(state.notes[index]))

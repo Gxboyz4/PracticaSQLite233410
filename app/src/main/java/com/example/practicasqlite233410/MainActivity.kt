@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -13,15 +14,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.room.Room
+import com.example.practicasqlite233410.data.Note
 import com.example.practicasqlite233410.data.NotesDatabase
 import com.example.practicasqlite233410.presentation.AddNoteScreen
 import com.example.practicasqlite233410.presentation.NotesScreen
+import com.example.practicasqlite233410.presentation.EditNoteScreen
 import com.example.practicasqlite233410.presentation.NotesViewModel
 import com.example.practicasqlite233410.ui.theme.RoomDatabaseTheme
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
@@ -37,7 +42,7 @@ class MainActivity : ComponentActivity() {
         factoryProducer = {
             object : ViewModelProvider.Factory {
                 override fun<T: ViewModel> create(modelClass: Class<T>): T {
-                    return NotesViewModel(database.dao) as T
+                    return NotesViewModel(database.dao,applicationContext) as T
                 }
             }
         }
@@ -58,6 +63,7 @@ class MainActivity : ComponentActivity() {
                     NavHost(navController= navController, startDestination = "NotesScreen") {
                         composable("NotesScreen") {
                             NotesScreen(
+                                context = applicationContext,
                                 state = state,
                                 navController = navController,
                                 onEvent = viewModel::onEvent
@@ -65,6 +71,13 @@ class MainActivity : ComponentActivity() {
                         }
                         composable("AddNoteScreen") {
                             AddNoteScreen(
+                                state = state,
+                                navController = navController,
+                                onEvent = viewModel::onEvent
+                            )
+                        }
+                        composable("EditNoteScreen") {
+                            EditNoteScreen(
                                 state = state,
                                 navController = navController,
                                 onEvent = viewModel::onEvent

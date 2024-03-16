@@ -1,6 +1,5 @@
 package com.example.practicasqlite233410.presentation
 
-import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,11 +12,16 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.example.practicasqlite233410.data.Validation
+import android.content.Context
+import androidx.appcompat.app.AlertDialog
+import kotlinx.coroutines.channels.produce
 
 class NotesViewModel(
-    private val dao: NoteDao
+    private val dao: NoteDao,
+    private val context: Context
 ) : ViewModel() {
-
+    private val validation = Validation(context)
     private val isSortedByDateAdded = MutableStateFlow(true)
 
     private var notes =
@@ -40,34 +44,71 @@ class NotesViewModel(
     fun onEvent(event: NotesEvent) {
         when (event) {
             is NotesEvent.DeleteNote -> {
-                viewModelScope.launch {
+                viewModelScope.launch{
                     dao.deleteNote(event.note)
                 }
             }
 
             is NotesEvent.SaveNote -> {
-                val note = Note(
-                    title = state.value.title.value,
-                    description = state.value.description.value,
-                    dateAdded = System.currentTimeMillis()
-                )
-
-                viewModelScope.launch {
-                    dao.upsertNote(note)
-                }
-
-                _state.update {
-                    it.copy(
-                        title = mutableStateOf(""),
-                        description = mutableStateOf("")
+                val title = state.value.title.value
+                val description = state.value.description.value
+                if(validation.validateTitle(title) and validation.validateDescription(description)){
+                    val note = Note(
+                        title,
+                        description,
+                        dateAdded = System.currentTimeMillis(),
                     )
+                    viewModelScope.launch {
+                        dao.upsertNote(note)
+                    }
+                    _state.update {
+                        it.copy(
+                            title = mutableStateOf(""),
+                            description = mutableStateOf("")
+                        )
+                    }
                 }
             }
+            is NotesEvent.EditNote ->{
+                val id = state.value.id.value
+                val title = state.value.title.value
+                val description = state.value.description.value
+                if(validation.validateTitle(title) and validation.validateDescription(description)){
+                    val note = Note(
+                        title,
+                        description,
+                        dateAdded = System.currentTimeMillis(),
+                        id
+                    )
 
+                    viewModelScope.launch {
+                        dao.updateNote(note)
+                    }
+                    _state.update {
+                        it.copy(
+                            title = mutableStateOf(""),
+                            description = mutableStateOf("")
+                        )
+                    }
+                }
+
+            }
             NotesEvent.SortNotes -> {
                 isSortedByDateAdded.value = !isSortedByDateAdded.value
             }
         }
+    }
+    private fun showDeleteConfirmationDialog(context: Context, note: Note) {
+        AlertDialog.Builder(context)
+            .setMessage("Do you want to delete this note?")
+            .setPositiveButton("Yes") { dialog, id ->
+
+            }
+            .setNegativeButton("No") { dialog, id ->
+                // No hacer nada, simplemente cerrar el diálogo
+            }
+            .create()
+            .show()
     }
 
 }

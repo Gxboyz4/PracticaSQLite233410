@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.Update
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -22,7 +22,7 @@ import androidx.navigation.NavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddNoteScreen(
+fun EditNoteScreen(
     state: NoteState,
     navController: NavController,
     onEvent: (NotesEvent) -> Unit
@@ -32,7 +32,8 @@ fun AddNoteScreen(
         floatingActionButton = {
             FloatingActionButton(onClick = {
 
-                onEvent(NotesEvent.SaveNote(
+                onEvent(NotesEvent.EditNote(
+                    id = state.id.value,
                     title = state.title.value,
                     description = state.description.value
                 ))
@@ -40,8 +41,8 @@ fun AddNoteScreen(
             }) {
 
                 Icon(
-                    imageVector = Icons.Rounded.Check,
-                    contentDescription = "Save Note"
+                    imageVector = Icons.Rounded.Update,
+                    contentDescription = "Edit Note"
                 )
 
             }
@@ -53,7 +54,24 @@ fun AddNoteScreen(
                 .padding(paddingValues)
                 .fillMaxSize()
         ) {
+            TextField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                value = state.id.toString(),
+                onValueChange = {
+                    state.title.value = it
+                },
+                textStyle = TextStyle(
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 17.sp
+                ),
+                placeholder = {
+                    Text(text = "ID")
+                },enabled=false
 
+
+            )
             TextField(
                 modifier = Modifier
                     .fillMaxWidth()
