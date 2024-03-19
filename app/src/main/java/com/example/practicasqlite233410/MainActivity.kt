@@ -1,6 +1,5 @@
 package com.example.practicasqlite233410
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -14,7 +13,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -26,9 +24,8 @@ import com.example.practicasqlite233410.presentation.NotesScreen
 import com.example.practicasqlite233410.presentation.EditNoteScreen
 import com.example.practicasqlite233410.presentation.NotesViewModel
 import com.example.practicasqlite233410.ui.theme.RoomDatabaseTheme
-import kotlinx.coroutines.launch
 
-class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity(){
 
     private val database by lazy {
         Room.databaseBuilder(
@@ -83,10 +80,14 @@ class MainActivity : ComponentActivity() {
                                 onEvent = viewModel::onEvent
                             )
                         }
+
                     }
 
                 }
             }
         }
     }
+
+
+
 }

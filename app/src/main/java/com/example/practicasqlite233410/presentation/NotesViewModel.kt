@@ -44,9 +44,7 @@ class NotesViewModel(
     fun onEvent(event: NotesEvent) {
         when (event) {
             is NotesEvent.DeleteNote -> {
-                viewModelScope.launch{
-                    dao.deleteNote(event.note)
-                }
+                deleteNoteConfirmed(event.note)
             }
 
             is NotesEvent.SaveNote -> {
@@ -93,22 +91,16 @@ class NotesViewModel(
                 }
 
             }
+
             NotesEvent.SortNotes -> {
                 isSortedByDateAdded.value = !isSortedByDateAdded.value
             }
         }
     }
-    private fun showDeleteConfirmationDialog(context: Context, note: Note) {
-        AlertDialog.Builder(context)
-            .setMessage("Do you want to delete this note?")
-            .setPositiveButton("Yes") { dialog, id ->
-
-            }
-            .setNegativeButton("No") { dialog, id ->
-                // No hacer nada, simplemente cerrar el diálogo
-            }
-            .create()
-            .show()
+    fun deleteNoteConfirmed(note: Note) {
+        viewModelScope.launch {
+            dao.deleteNote(note)
+        }
     }
 
 }
